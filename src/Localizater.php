@@ -17,6 +17,13 @@ class Localizater
     protected $locales;
 
     /**
+     * RTL locales.
+     *
+     * @var array
+     */
+    protected $rtl_locales;
+
+    /**
      * Default locale.
      *
      * @var string
@@ -50,6 +57,7 @@ class Localizater
     public function __construct()
     {
         $this->locales = Config::get('localizater.locales');
+        $this->rtl_locales = Config::get('localizater.rtl_locales');
         $this->locale = Config::get('app.locale');
         $this->prefixDefault = Config::get('localizater.prefix_default');
         $this->prefixDefaultName = Config::get('localizater.prefix_default_name');
@@ -84,7 +92,7 @@ class Localizater
      * @param bool $absolute
      * @return string
      */
-    protected function localeRoute($route = null, $locale = null, $parameters = [], $absolute = true)
+    public function localeRoute($route = null, $locale = null, $parameters = [], $absolute = true)
     {
         // Get route
         $route = $this->route($route, $parameters, $absolute);
@@ -143,9 +151,19 @@ class Localizater
      * @param string|null $locale
      * @return string
      */
-    protected function localeName($locale = null)
+    public function localeName($locale = null)
     {
         return Config::get('localizater.locales')[$locale ?: App::getLocale()];
+    }
+
+    /**
+     * Get locale direction.
+     * @param string|null $locale
+     * @return string
+     */
+    public function localeDir($locale = null)
+    {
+        return in_array($locale ?: App::getLocale(), $this->rtl_locales) ? 'rtl' : 'ltr';
     }
 
     /**
@@ -200,14 +218,6 @@ class Localizater
             } else {
                 $this->group(...$arguments);
             }
-        }
-
-        if ($name === 'localeRoute') {
-            return $this->localeRoute(...$arguments);
-        }
-
-        if ($name === 'localeName') {
-            return $this->localeName(...$arguments);
         }
 
         if ($name === 'getLocale') {
